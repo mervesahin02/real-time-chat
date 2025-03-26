@@ -4,10 +4,11 @@ from psycopg2 import pool
 import uuid
 
 class FileSharing:
+    
     def __init__(self, 
                  dbname="triscord_db", 
                  user="postgres", 
-                 password="your_password", 
+                 password="HappyCat", 
                  host="localhost", 
                  port="5432",
                  upload_directory="uploads"):

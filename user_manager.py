@@ -3,6 +3,7 @@ from psycopg2 import pool
 import hashlib
 
 class UserManager:
+    
     def __init__(self, 
                  dbname="triscord_db", 
                  user="postgres", 

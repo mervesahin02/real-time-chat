@@ -3,10 +3,11 @@ from psycopg2 import pool
 from datetime import datetime
 
 class UserProfile:
+    
     def __init__(self, 
                  dbname="triscord_db", 
                  user="postgres", 
-                 password="your_password", 
+                 password="HappyCat", 
                  host="localhost", 
                  port="5432"):
         try:

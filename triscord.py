@@ -6,7 +6,10 @@ from PyQt5 import QtWidgets, QtCore
 from PyQt5.QtWidgets import QDesktopWidget
 from PyQt5.QtGui import QIcon
 from datetime import datetime
-
+from user_manager import UserManager
+from user_profiles import UserProfile
+from message_logger import MessageLogger
+from file_sharing import FileSharing
 
 
 
@@ -46,14 +49,32 @@ class LoginWindow(QtWidgets.QWidget):
             receive_thread.start()
             self.chat_window.message_input.setFocus()
             self.chat_window.show()
+            
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
             self.login()
+            
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+        
+    def login(self):
+        global nickname
+        nickname = self.nickname_input.text()
+        if nickname:
+            # Add user authentication
+            user_manager = UserManager()
+            if user_manager.validate_login(nickname, "password"):  # You'll need to modify this
+                self.close()
+                self.chat_window = ChatWindow()
+                receive_thread = threading.Thread(target=receive_messages, args=(self.chat_window,))
+                receive_thread.start()
+                self.chat_window.message_input.setFocus()
+                self.chat_window.show()
+            else:
+                QtWidgets.QMessageBox.warning(self, "Hata", "Geçersiz kullanıcı adı veya şifre")
 
 class ChatWindow(QtWidgets.QWidget):
     def __init__(self):
@@ -115,6 +136,7 @@ class ChatWindow(QtWidgets.QWidget):
         self.send_button.setGeometry(QtCore.QRect(window_width - 160, window_height- 110, 100,30))
         self.send_button.clicked.connect(self.send_message)
         self.send_button.setStyleSheet("background-color: #4CAF50; color: white;  font-weight: bold;")
+        
     def show_context_menu(self,pos):
         menu = QtWidgets.QMenu(self)
         menu.setStyleSheet("QMenu {background-color: #333; color: white;}")
@@ -125,16 +147,19 @@ class ChatWindow(QtWidgets.QWidget):
             self.set_private_message_target()
         elif action==view_profile_action:
             self.view_user_profile()
+            
     def view_user_profile(self):
         selected_user = self.user_list.currentItem()
         if selected_user:
             user_profile = f'Kullanıcı: {selected_user.text()}\n'
             QtWidgets.QMessageBox.information(self,"Kullanıcı Profili",user_profile)
+            
     def clear_target(self):
         global target_user
         target_user = None
         self.message_label.setText("")
         self.clear_target_button.hide()
+        
     def set_private_message_target(self):
         global target_user
         selected_user = self.user_list.currentItem()
@@ -147,11 +172,13 @@ class ChatWindow(QtWidgets.QWidget):
             else:
                 self.message_label.setText(f"{target_user} adlı kişiye özel mesaj gönderiyorsunuz.")
                 self.clear_target_button.show()
+                
     def center(self):
         qr = self.frameGeometry()
         cp = QDesktopWidget().availableGeometry().center()
         qr.moveCenter(cp)
         self.move(qr.topLeft())
+        
     def open_emoji_picker(self):
         emoji_dialog = QtWidgets.QDialog(self)
         emoji_dialog.setWindowTitle("Emoji Seçici")
@@ -170,13 +197,16 @@ class ChatWindow(QtWidgets.QWidget):
                 col = 0
                 row +=1
         emoji_dialog.exec_()
+        
     def add_emoji(self,emoji,dialog):
         self.message_input.setText(self.message_input.text()+emoji)
         dialog.accept()
+        
     def update_user_list(self,message):
         users = message.split(":")[1].split(",")
         self.user_list.clear()
         self.user_list.addItems(users)
+        
     def receive_message(self,message):
         if message.startswith('USER_LIST'):
             self.update_user_list(message)
@@ -188,12 +218,15 @@ class ChatWindow(QtWidgets.QWidget):
                 self.chat_area.append(f"Size özel olarak gönderilen mesaj: {private_message}")
         else:
             self.chat_area.append(message)
+            
     def closeEvent(self, event):
         client.close()
         event.accept()
+        
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
             self.send_message()
+            
     def send_message(self):
         global target_user
         message = self.message_input.text()
@@ -208,6 +241,27 @@ class ChatWindow(QtWidgets.QWidget):
                 self.chat_area.append(full_message)
                 client.send(full_message.encode('utf-8'))
             self.message_input.clear()
+            
+    def send_message(self):
+        global target_user
+        message = self.message_input.text()
+        if message.strip():
+            timestamp = datetime.now().strftime('%H:%M:%S')
+            message_logger = MessageLogger()
+        
+            if target_user:
+                full_message = f'[{timestamp}] [Özel] {nickname} -> {target_user}: {message}'
+                client.send(f'PRIVATE:{target_user}:{full_message}'.encode('utf-8'))
+                message_logger.log_message(nickname, message, recipient=target_user, is_private=True)
+                self.chat_area.append(f'Size özel olarak {target_user} adlı kişiye mesaj gönderildi: {message}')
+            else:
+                full_message = f'[{timestamp}] {nickname}: {message}'
+                self.chat_area.append(full_message)
+                client.send(full_message.encode('utf-8'))
+                message_logger.log_message(nickname, message)
+        
+            self.message_input.clear()
+            
 def receive_messages(chat_window):
     while True:
         try:
@@ -225,6 +279,19 @@ def receive_messages(chat_window):
             break
 
 def main():
+    # Database initialization
+    user_manager = UserManager()
+    user_manager.create_users_table()
+    
+    user_profile = UserProfile()
+    user_profile.create_profiles_table()
+    
+    message_logger = MessageLogger()
+    message_logger.create_messages_table()
+    
+    file_sharing = FileSharing()
+    file_sharing.create_file_table()
+
     try:
         client.connect(('localhost',54321))
     except:
