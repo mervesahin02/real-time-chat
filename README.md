@@ -1,40 +1,40 @@
-# Triscord: A Real-Time Chat Application
+# Triscord: Gerçek Zamanlı Sohbet Uygulaması
 
-## Project Overview
+## Proje Genel Bakış
 
-Triscord is a feature-rich, real-time chat application built with Python, utilizing PyQt5 for the graphical user interface and PostgreSQL for data management. The application provides secure user authentication, private messaging, emoji support, and robust file-sharing capabilities.
+Triscord, PyQt5 grafik kullanıcı arayüzü ve PostgreSQL veri yönetimi ile oluşturulmuş zengin özelliklere sahip gerçek zamanlı bir sohbet uygulamasıdır. Uygulama güvenli kullanıcı kimlik doğrulama, özel mesajlaşma, emoji desteği ve sağlam dosya paylaşım yetenekleri sağlar.
 
-## Features
+## Özellikler
 
-### User Management
-- Secure user registration and login
-- Password hashing for enhanced security
-- User profile creation and management
+### Kullanıcı Yönetimi
+- Güvenli kullanıcı kayıt ve giriş
+- Gelişmiş güvenlik için parola karması
+- Kullanıcı profili oluşturma ve yönetimi
 
-### Messaging
-- Real-time group chat
-- Private messaging
-- Message logging with timestamps
-- Emoji picker
+### Mesajlaşma
+- Gerçek zamanlı grup sohbeti
+- Özel mesajlaşma
+- Zaman damgalı mesaj günlüğü
+- Emoji seçici
 
-### User Experience
-- Dynamic online user list
-- Context menu for user interactions
-- Responsive UI design
+### Kullanıcı Deneyimi
+- Dinamik çevrimiçi kullanıcı listesi
+- Kullanıcı etkileşimleri için içerik menüsü
+- Esnek UI tasarımı
 
-### Database Integration
-- PostgreSQL database for:
-  - User management
-  - Message history
-  - User profiles
-  - File sharing metadata
+### Veritabanı Entegrasyonu
+- PostgreSQL veritabanı için:
+  - Kullanıcı yönetimi
+  - Mesaj geçmişi
+  - Kullanıcı profilleri
+  - Dosya paylaşım meta verileri
 
-## Prerequisites
+## Ön Gereksinimler
 
-### Software Requirements
+### Yazılım Gereksinimleri
 - Python 3.8+
 - PostgreSQL 12+
-- Required Python Libraries:
+- Gerekli Python Kütüphaneleri:
   - PyQt5
   - psycopg2
   - socket
@@ -42,79 +42,79 @@ Triscord is a feature-rich, real-time chat application built with Python, utiliz
   - uuid
   - hashlib
 
-### Database Setup
-1. Create a PostgreSQL database named `triscord_db`
-2. Ensure PostgreSQL is running on localhost:5432
-3. Default credentials:
-   - Username: postgres
-   - Password: HappyCat
+### Veritabanı Kurulumu
+1. `triscord_db` adında bir PostgreSQL veritabanı oluşturun
+2. PostgreSQL'in localhost:5432'de çalıştığından emin olun
+3. Varsayılan kimlik bilgileri:
+   - Kullanıcı Adı: postgres
+   - Parola: HappyCat
 
-## Installation
+## Kurulum
 
-1. Clone the repository
+1. Depoyu klonlayın
 ```bash
-git clone https://github.com/yourusername/triscord.git
+git clone https://github.com/kullaniciadiniz/triscord.git
 cd triscord
 ```
 
-2. Install dependencies
+2. Bağımlılıkları yükleyin
 ```bash
 pip install PyQt5 psycopg2 
 ```
 
-3. Configure Database
-- Modify connection parameters in each class constructor if needed
-- Ensure PostgreSQL is running
+3. Veritabanını Yapılandırın
+- Gerekirse her sınıfın yapıcı metodunda bağlantı parametrelerini değiştirin
+- PostgreSQL'in çalıştığından emin olun
 
-## Running the Application
+## Uygulamayı Çalıştırma
 
 ```bash
 python triscord.py
 ```
 
-## Project Structure
+## Proje Yapısı
 
-- `triscord.py`: Main application entry point
-- `server.py`: Socket server for real-time communication
-- `user_manager.py`: User authentication and registration
-- `user_profiles.py`: User profile management
-- `message_logger.py`: Message history logging
-- `file_sharing.py`: File upload and metadata tracking
-- `styles.py`: UI styling configurations
+- `triscord.py`: Ana uygulama giriş noktası
+- `server.py`: Gerçek zamanlı iletişim için soket sunucusu
+- `user_manager.py`: Kullanıcı kimlik doğrulama ve kayıt
+- `user_profiles.py`: Kullanıcı profili yönetimi
+- `message_logger.py`: Mesaj geçmişi günlüğü
+- `file_sharing.py`: Dosya yükleme ve meta veri izleme
+- `styles.py`: UI stil yapılandırmaları
 
-## Security Features
+## Güvenlik Özellikleri
 
-- Password hashing with SHA-256
-- Secure database connection pooling
-- Unique user identification
-- Private message encryption
+- SHA-256 ile parola karması
+- Güvenli veritabanı bağlantı havuzu
+- Benzersiz kullanıcı tanımlama
+- Özel mesaj şifrelemesi
 
-## Customization
+## Özelleştirme
 
-- Modify `styles.py` to change UI appearance
-- Adjust database connection parameters in respective class constructors
+- UI görünümünü değiştirmek için `styles.py`'yi düzenleyin
+- İlgili sınıf yapıcılarında veritabanı bağlantı parametrelerini ayarlayın
 
-## Planned Improvements
+## Planlanan İyileştirmeler
 
-- End-to-end message encryption
-- File transfer functionality
-- Advanced user profile features
-- Enhanced error handling
+- Uçtan uca mesaj şifrelemesi
+- Dosya transfer işlevselliği
+- Gelişmiş kullanıcı profil özellikleri
+- Gelişmiş hata işleme
 
-## Contributing
+## Katkıda Bulunma
 
-1. Fork the repository
-2. Create your feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add some AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+1. Depoyu çatallayın
+2. Özellik dalınızı oluşturun (`git checkout -b feature/MükemmelOzellik`)
+3. Değişikliklerinizi kaydedin (`git commit -m 'MükemmelOzellik ekle'`)
+4. Dala gönderin (`git push origin feature/MükemmelOzellik`)
+5. Bir Çekme İsteği açın
 
-## License
+## Lisans
 
-Distributed under the MIT License. See `LICENSE` for more information.
+MIT Lisansı altında dağıtılmaktadır. Daha fazla bilgi için `LICENSE`'a bakın.
 
-## Contact
+## İletişim
 
 Seyyide Merve Şahin - sydmervesihin@gmail.com
 
-Project Link: [https://github.com/yourusername/triscord](https://github.com/yourusername/triscord)
+Proje Bağlantısı: [https://github.com/kullaniciadiniz/triscord](https://github.com/kullaniciadiniz/triscord)
