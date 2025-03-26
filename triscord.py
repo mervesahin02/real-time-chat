@@ -3,7 +3,7 @@ import sys
 import socket
 import threading
 from PyQt5 import QtWidgets, QtCore
-from PyQt5.QtWidgets import QDesktopWidget
+from PyQt5.QtWidgets import QDesktopWidget, QMessageBox
 from PyQt5.QtGui import QIcon
 from datetime import datetime
 from user_manager import UserManager
@@ -12,9 +12,11 @@ from message_logger import MessageLogger
 from file_sharing import FileSharing
 
 
-
 client = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
+# İkonu URL'den indirip bir dosyaya kaydetme
+url = "https://assets-btkakademi-gov-tr.akamaized.net/api/gallery/51/bb2b1a79-8a7f-4c18-970c-6687a910b496/BTKAkademi-Normal.png?t=1739345573413"
+icon_path = "icon.png"  # Kaydedilecek dosya adı
 nickname = ""
 emoji_list = ["😀", "😂", "😍", "😊", "😎", "😢", "😭", "😡", "👍", "👎", "💪", "🙏", "🔥", "🎉", "💯", "💔", "❤️", "🥳", "😅", "🤔", "🤷‍♂️",
           "🤷‍♀️", "🙌", "👏", "😴"]
@@ -26,55 +28,94 @@ class LoginWindow(QtWidgets.QWidget):
         super().__init__()
         self.setWindowTitle("Triscord'a Giriş Yap")
         self.setWindowIcon(QIcon("icon.ico"))
-        self.setGeometry(100,100,300,150)
+        self.setGeometry(100, 100, 300, 250)
         self.center()
 
-        #kullanıcı adı alma
-        self.nickname_input = QtWidgets.QLineEdit(self)
-        self.nickname_input.setGeometry(QtCore.QRect(50,30,200,30))
-        self.nickname_input.setPlaceholderText("Takma adınızı girin...")
+        # Layout
+        layout = QtWidgets.QVBoxLayout(self)
 
-        #Giriş buton
-        self.login_button = QtWidgets.QPushButton("Giriş",self)
-        self.login_button.setGeometry(QtCore.QRect(100,80,100,30))
+        # Kullanıcı adı input
+        self.nickname_input = QtWidgets.QLineEdit(self)
+        self.nickname_input.setPlaceholderText("Kullanıcı adınızı girin...")
+        layout.addWidget(self.nickname_input)
+
+        # Şifre input
+        self.password_input = QtWidgets.QLineEdit(self)
+        self.password_input.setPlaceholderText("Şifrenizi girin...")
+        self.password_input.setEchoMode(QtWidgets.QLineEdit.Password)
+        layout.addWidget(self.password_input)
+
+        # Email input (for registration)
+        self.email_input = QtWidgets.QLineEdit(self)
+        self.email_input.setPlaceholderText("E-posta adresinizi girin (isteğe bağlı)...")
+        layout.addWidget(self.email_input)
+
+        # Buton layout
+        button_layout = QtWidgets.QHBoxLayout()
+
+        # Giriş butonu
+        self.login_button = QtWidgets.QPushButton("Giriş", self)
         self.login_button.clicked.connect(self.login)
+        button_layout.addWidget(self.login_button)
+
+        # Kayıt butonu
+        self.register_button = QtWidgets.QPushButton("Kayıt Ol", self)
+        self.register_button.clicked.connect(self.register)
+        button_layout.addWidget(self.register_button)
+
+        layout.addLayout(button_layout)
+
+        self.setLayout(layout)
+
+    def center(self):
+        qr = self.frameGeometry()
+        cp = QDesktopWidget().availableGeometry().center()
+        qr.moveCenter(cp)
+        self.move(qr.topLeft())
 
     def login(self):
         global nickname
         nickname = self.nickname_input.text()
-        if nickname:
+        password = self.password_input.text()
+
+        user_manager = UserManager()
+        if user_manager.validate_login(nickname, password):
+            # Create user profile if not exists
+            user_profile = UserProfile()
+            if not user_profile.get_profile(nickname):
+                user_profile.create_profile(nickname)
+
             self.close()
             self.chat_window = ChatWindow()
             receive_thread = threading.Thread(target=receive_messages, args=(self.chat_window,))
             receive_thread.start()
             self.chat_window.message_input.setFocus()
             self.chat_window.show()
-            
+        else:
+            QMessageBox.warning(self, "Hata", "Geçersiz kullanıcı adı veya şifre")
+
+    def register(self):
+        nickname = self.nickname_input.text()
+        password = self.password_input.text()
+        email = self.email_input.text() or None
+
+        if not nickname or not password:
+            QMessageBox.warning(self, "Hata", "Kullanıcı adı ve şifre zorunludur")
+            return
+
+        user_manager = UserManager()
+        if user_manager.register_user(nickname, password, email):
+            # Automatically create a profile for the new user
+            user_profile = UserProfile()
+            user_profile.create_profile(nickname)
+
+            QMessageBox.information(self, "Başarılı", "Kayıt işlemi başarıyla tamamlandı!")
+        else:
+            QMessageBox.warning(self, "Hata", "Kullanıcı kaydı başarısız oldu. Kullanıcı adı zaten mevcut olabilir.")
+
     def keyPressEvent(self, event):
         if event.key() == QtCore.Qt.Key_Return or event.key() == QtCore.Qt.Key_Enter:
             self.login()
-            
-    def center(self):
-        qr = self.frameGeometry()
-        cp = QDesktopWidget().availableGeometry().center()
-        qr.moveCenter(cp)
-        self.move(qr.topLeft())
-        
-    def login(self):
-        global nickname
-        nickname = self.nickname_input.text()
-        if nickname:
-            # Add user authentication
-            user_manager = UserManager()
-            if user_manager.validate_login(nickname, "password"):  # You'll need to modify this
-                self.close()
-                self.chat_window = ChatWindow()
-                receive_thread = threading.Thread(target=receive_messages, args=(self.chat_window,))
-                receive_thread.start()
-                self.chat_window.message_input.setFocus()
-                self.chat_window.show()
-            else:
-                QtWidgets.QMessageBox.warning(self, "Hata", "Geçersiz kullanıcı adı veya şifre")
 
 class ChatWindow(QtWidgets.QWidget):
     def __init__(self):
